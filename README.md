@@ -55,12 +55,12 @@ The binary is available for Windows, Mac, and Linux.
 
 ### 🐧 Mac & Linux
 ```bash
-curl -L https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/main/install.sh | sh
+curl -L https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.sh | sh
 ```
 
 ### 🪟 Windows PowerShell
 ```powershell
-iwr -useb https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/main/install.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.ps1 | iex
 ```
 
 ## 🚀 Usage
