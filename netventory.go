@@ -34,6 +34,7 @@ func init() {
 	// Parse command line flags
 	debugFlag := flag.Bool("debug", debug, "Enable debug mode (generates debug.log and report.log in current directory)")
 	workers := flag.Int("w", workerCount, "Number of concurrent scanning workers (default: 50)")
+	versionFlag := flag.Bool("version", false, "Display version information and exit")
 
 	// Add help text
 	flag.Usage = func() {
@@ -45,6 +46,12 @@ func init() {
 	}
 
 	flag.Parse()
+
+	// Handle version flag first
+	if *versionFlag {
+		fmt.Printf("netventory %s\n", version)
+		os.Exit(0)
+	}
 
 	// Show help if any non-flag arguments are provided
 	if flag.NArg() > 0 {
