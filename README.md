@@ -51,14 +51,19 @@ Perfect for network administrators, security professionals, and anyone who needs
 
 ## ⚡ Installation
 
-The binary is available for Windows, Mac, and Linux.
+The binary is available for Windows, Mac, and Linux. You can download from the bins folder, or use the install scripts. They are in the repo if you want to browse the commands (super simple download and copy).
 
 ### 🐧 Mac & Linux
+
+Open a terminal and run the following command:
+
 ```bash
 curl -L https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.sh | sh
 ```
 
 ### 🪟 Windows PowerShell
+
+Open a PowerShell terminal and run the following command:
 ```powershell
 iwr -useb https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.ps1 | iex
 ```
