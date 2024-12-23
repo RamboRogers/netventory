@@ -61,12 +61,20 @@ Open a terminal and run the following command:
 curl -L https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.sh | sh
 ```
 
+or Brew for Mac
+
+```bash
+brew tap ramborogers/netventory
+brew install netventory
+```
+
 ### 🪟 Windows PowerShell
 
 Open a PowerShell terminal and run the following command:
 ```powershell
 iwr -useb https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.ps1 | iex
 ```
+
 
 ## 🚀 Usage
 
