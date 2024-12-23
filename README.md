@@ -88,6 +88,23 @@ netventory -h          # Show help message
 - **Network Management**: Device inventory and tracking
 - **Troubleshooting**: Network connectivity verification
 
+### Screenshots
+
+
+<div align="center">
+  <table>
+    <tr>
+      <td><img src="media/screenshot2.png" alt="NetVentory Interface Selection" width="400"/></td>
+      <td><img src="media/screenshot3.png" alt="NetVentory Network Selection" width="400"/></td>
+    </tr>
+    <tr>
+      <td><img src="media/screenshot4.png" alt="NetVentory Scanning" width="400"/></td>
+      <td><img src="media/screenshot5.png" alt="NetVentory Device Details" width="400"/></td>
+    </tr>
+  </table>
+</div>
+
+
 <div align="center">
 
 ## ⚖️ License
