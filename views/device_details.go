@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mattbnz/netventory/scanner"
+	"github.com/ramborogers/netventory/scanner"
 )
 
 // DeviceDetailsView handles the device details screen

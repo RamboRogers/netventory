@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"flag"
 	"fmt"
 	"io"
@@ -14,34 +15,67 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-
+	
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jackpal/gateway"
-	"github.com/mattbnz/netventory/scanner"
-	"github.com/mattbnz/netventory/views"
+	"github.com/ramborogers/netventory/scanner"
+	"github.com/ramborogers/netventory/views"
+	"github.com/ramborogers/netventory/web"
+
 )
 
 const (
-	version = "0.1.0"
-	debug   = false // Default debug setting, can be overridden by -debug flag
+	version         = "0.2.0n"
+	debug           = false // Default debug setting, can be overridden by --debug flag
+	authTokenLength = 50
 )
 
 var (
-	workerCount = 50 // Default worker count, can be overridden by -w flag
+	workerCount = 50   // Default worker count, can be overridden by --workers flag
+	webPort     = 7331 // Default web interface port
+	webServer   *web.Server
 )
+
+// generateAuthToken creates a cryptographically secure random token
+func generateAuthToken(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	if _, err := rand.Read(b); err != nil {
+		log.Fatalf("Failed to generate secure token: %v", err)
+	}
+	for i := range b {
+		b[i] = charset[int(b[i])%len(charset)]
+	}
+	return string(b)
+}
 
 func init() {
 	// Parse command line flags
-	debugFlag := flag.Bool("debug", debug, "Enable debug mode (generates debug.log and report.log in current directory)")
-	workers := flag.Int("w", workerCount, "Number of concurrent scanning workers (default: 50)")
-	versionFlag := flag.Bool("version", false, "Display version information and exit")
+	debugFlag := flag.Bool("debug", debug, "Enable debug mode (generates debug.log and report.log)")
+	flag.BoolVar(debugFlag, "d", debug, "") // Shorthand
+
+	workers := flag.Int("workers", workerCount, "Number of concurrent scanning workers")
+
+	webFlag := flag.Bool("web", false, "Enable web interface mode")
+	flag.BoolVar(webFlag, "w", false, "") // Shorthand
+
+	portFlag := flag.Int("port", webPort, "Web interface port")
+	flag.IntVar(portFlag, "p", webPort, "") // Shorthand
+
+	versionFlag := flag.Bool("version", false, "Display version information")
+	flag.BoolVar(versionFlag, "v", false, "") // Shorthand
 
 	// Add help text
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "netventory %s - Network Discovery Tool by RamboRogers\n\n", version)
+		fmt.Fprintf(os.Stderr, "netventory %s - Network Discovery Tool\n", version)
+		fmt.Fprintf(os.Stderr, "https://github.com/RamboRogers/netventory\n\n")
 		fmt.Fprintf(os.Stderr, "Usage: %s [options]\n\n", os.Args[0])
 		fmt.Fprintf(os.Stderr, "Options:\n")
-		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, "  -d, --debug     Enable debug mode (generates debug.log and report.log)\n")
+		fmt.Fprintf(os.Stderr, "  -w, --web       Enable web interface mode\n")
+		fmt.Fprintf(os.Stderr, "  -p, --port      Web interface port (default: 7331)\n")
+		fmt.Fprintf(os.Stderr, "  -v, --version   Display version information\n")
+		fmt.Fprintf(os.Stderr, "      --workers   Number of concurrent scanning workers (default: 50)\n")
 		os.Exit(1)
 	}
 
@@ -50,6 +84,7 @@ func init() {
 	// Handle version flag first
 	if *versionFlag {
 		fmt.Printf("netventory %s\n", version)
+		fmt.Printf("https://github.com/RamboRogers/netventory\n")
 		os.Exit(0)
 	}
 
@@ -75,6 +110,59 @@ func init() {
 	if *workers > 0 {
 		workerCount = *workers
 	}
+
+	if *webFlag {
+		webPort = *portFlag
+		startWebInterface()
+		// Wait indefinitely while web server runs
+		select {}
+	}
+}
+
+// startWebInterface initializes and starts the web interface
+func startWebInterface() {
+	// Restore console logging for web interface
+	log.SetOutput(os.Stderr)
+
+	fmt.Printf("\033[92mnetventory %s - Network Discovery Tool\033[0m\n", version)
+	fmt.Printf("\033[94mhttps://github.com/RamboRogers/netventory\033[0m\n\n")
+
+	// Generate auth token
+	authToken := generateAuthToken(authTokenLength)
+
+	// Get all network interfaces
+	interfaces, err := getNetworkInterfaces()
+	if err != nil {
+		log.Printf("Warning: Could not get network interfaces: %v", err)
+	}
+
+	server, err := web.NewServer(webPort, authToken, fmt.Sprintf("v%s", version))
+	if err != nil {
+		log.Fatalf("Failed to create web server: %v", err)
+	}
+
+	// Start web server in a goroutine
+	go func() {
+		fmt.Printf("\033[92mWeb interface available at:\033[0m\n")
+		fmt.Printf("  \033[94mhttp://localhost:%d?auth=%s\033[0m	\n", webPort, authToken)
+
+		// Print URLs for all network interfaces
+		for _, iface := range interfaces {
+			if iface.IPAddress != "" && !strings.HasPrefix(iface.IPAddress, "127.") {
+				fmt.Printf("  \033[94mhttp://%s:%d?auth=%s\033[0m\n", iface.IPAddress, webPort, authToken)
+			}
+		}
+		fmt.Println("\nAuthentication token required in URL: ?auth=<token>")
+		fmt.Println("Token will be valid until program restart")
+		fmt.Println()
+
+		if err := server.Start(); err != nil {
+			log.Fatalf("Web server error: %v", err)
+		}
+	}()
+
+	// Store server reference for updates
+	webServer = server
 }
 
 // Model represents the application state
@@ -466,6 +554,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.devices[msg.device.IPAddress] = msg.device
 			m.deviceMutex.Unlock()
 			atomic.AddInt32(&m.discoveredCount, 1)
+
+			// Update web interface if enabled
+			if webServer != nil {
+				webServer.UpdateDevices(m.devices)
+			}
 		}
 
 		// Update scan progress from scanner
@@ -490,6 +583,11 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.scanningView.SetProgress(m.scannedCount, m.totalIPs, m.discoveredCount)
 			m.scanningView.SetWorkerStats(m.workerStats)
 
+			// Update web interface if enabled
+			if webServer != nil {
+				webServer.UpdateProgress(m.scannedCount, m.totalIPs, m.discoveredCount)
+			}
+
 			// Force a refresh of the view
 			m.frame++ // Increment frame to trigger redraw
 		}
@@ -511,6 +609,14 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if msg.done {
 			m.scanningActive = false
 			m.currentScreen = screenResults
+
+			// Notify web interface if enabled
+			if webServer != nil {
+				webServer.BroadcastUpdate(map[string]interface{}{
+					"type": "scan_complete",
+				})
+			}
+
 			return m, nil
 		}
 		return m, nil

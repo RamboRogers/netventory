@@ -1,4 +1,4 @@
-module github.com/mattbnz/netventory
+module github.com/ramborogers/netventory
 
 go 1.21
 
@@ -9,7 +9,10 @@ require (
 	github.com/jackpal/gateway v1.0.16
 )
 
-require golang.org/x/net v0.33.0 // indirect
+require (
+	github.com/gorilla/websocket v1.5.3 // indirect
+	golang.org/x/net v0.33.0 // indirect
+)
 
 require (
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect

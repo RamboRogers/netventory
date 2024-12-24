@@ -10,7 +10,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mattbnz/netventory/scanner"
+	"github.com/ramborogers/netventory/scanner"
 )
 
 // ScanningView handles the network scanning screen

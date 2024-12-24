@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetVentory - Network Discovery Tool</title>
+    <link rel="stylesheet" href="/static/css/styles.css?auth={{.AuthToken}}">
+</head>
+<body class="dark-theme">
+    <div class="container">
+        <header>
+            <h1>NetVentory</h1>
+            <p class="version">{{.Version}}</p>
+        </header>
+
+        <main>
+            <div class="interface-selection">
+                <h2>Select Network Interface</h2>
+                <div class="interface-list"></div>
+            </div>
+
+            <div class="scan-confirmation hidden">
+                <h2>Confirm Scan Range</h2>
+                <div class="range-input">
+                    <input type="text" id="cidr-range" placeholder="192.168.1.0/24" autofocus spellcheck="false">
+                    <button id="start-scan">Start Scan</button>
+                </div>
+                <div class="cidr-help">
+                    <h4>CIDR Range Examples:</h4>
+                    <p><code>192.168.1.0/24</code> - Scans 256 addresses (192.168.1.0 to 192.168.1.255)</p>
+                    <p><code>10.0.0.0/16</code> - Scans 65,536 addresses (10.0.0.0 to 10.0.255.255)</p>
+                    <p><code>172.16.0.0/12</code> - Scans private network range</p>
+                </div>
+            </div>
+
+            <div class="scanning-view hidden">
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress"></div>
+                        <div class="progress-status">Scanning</div>
+                    </div>
+                    <div class="progress-stats">
+                        <span class="scanned">0/0</span>
+                        <span class="rate">0/sec</span>
+                        <span class="discovered">0 devices</span>
+                        <span class="elapsed">00:00</span>
+                    </div>
+                    <div class="worker-stats"></div>
+                </div>
+
+                <div class="device-list">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>IP Address</th>
+                                <th>Hostname</th>
+                                <th>Ports</th>
+                            </tr>
+                        </thead>
+                        <tbody id="device-table"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="device-details hidden">
+                <button class="close-details">&times;</button>
+                <div class="details-content"></div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="status-bar">
+                <span class="current-status">Ready</span>
+                <span class="worker-status"></span>
+            </div>
+            <div class="branding">
+                <p>NetVentory - Lightning-fast Network Discovery Tool</p>
+                <p><a href="https://github.com/RamboRogers/netventory" target="_blank">GitHub</a> • Made with ❤️ by RamboRogers</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/js/app.js?auth={{.AuthToken}}"></script>
+</body>
+</html>
