@@ -1,11 +1,12 @@
 package main
 
 import (
-	"crypto/rand"
+	_ "embed"
 	"flag"
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"regexp"
@@ -15,13 +16,13 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
-	
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/jackpal/gateway"
 	"github.com/ramborogers/netventory/scanner"
+	"github.com/ramborogers/netventory/telemetry"
 	"github.com/ramborogers/netventory/views"
 	"github.com/ramborogers/netventory/web"
-
 )
 
 const (
@@ -30,26 +31,74 @@ const (
 	authTokenLength = 50
 )
 
+//go:embed private.txt
+var privateConfig string
+
 var (
-	workerCount = 50   // Default worker count, can be overridden by --workers flag
-	webPort     = 7331 // Default web interface port
-	webServer   *web.Server
+	workerCount     = 50   // Default worker count, can be overridden by --workers flag
+	webPort         = 7331 // Default web interface port
+	webServer       *web.Server
+	telemetryClient *telemetry.Client
 )
 
-// generateAuthToken creates a cryptographically secure random token
-func generateAuthToken(length int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, length)
-	if _, err := rand.Read(b); err != nil {
-		log.Fatalf("Failed to generate secure token: %v", err)
+// parsePrivateConfig parses the embedded configuration
+func parsePrivateConfig() (server, token string, err error) {
+	lines := strings.Split(privateConfig, "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+
+		key := strings.TrimSpace(parts[0])
+		value := strings.TrimSpace(parts[1])
+
+		switch key {
+		case "TELEMETRY_SERVER":
+			server = value
+		case "TELEMETRY_TOKEN":
+			token = value
+		}
 	}
-	for i := range b {
-		b[i] = charset[int(b[i])%len(charset)]
+
+	if server == "" {
+		return "", "", fmt.Errorf("TELEMETRY_SERVER not found in embedded config")
 	}
-	return string(b)
+	if token == "" {
+		return "", "", fmt.Errorf("TELEMETRY_TOKEN not found in embedded config")
+	}
+
+	return server, token, nil
 }
 
 func init() {
+	// Initialize telemetry client in background
+	go func() {
+		server, token, err := parsePrivateConfig()
+		if err != nil {
+			log.Printf("Warning: Failed to parse embedded config: %v", err)
+			return
+		}
+
+		var clientErr error
+		telemetryClient, clientErr = telemetry.NewClient(server, token, version)
+		if clientErr != nil {
+			// Log error but continue - telemetry is non-critical
+			log.Printf("Failed to initialize telemetry: %v", clientErr)
+			return
+		}
+		if err := telemetryClient.Start(); err != nil {
+			// Log error but continue - telemetry is non-critical
+			log.Printf("Failed to start telemetry: %v", err)
+			telemetryClient = nil // Disable telemetry on error
+		}
+	}()
+
 	// Parse command line flags
 	debugFlag := flag.Bool("debug", debug, "Enable debug mode (generates debug.log and report.log)")
 	flag.BoolVar(debugFlag, "d", debug, "") // Shorthand
@@ -246,6 +295,19 @@ func welcomeTimer() tea.Cmd {
 	return tea.Tick(900*time.Millisecond, func(t time.Time) tea.Msg {
 		return welcomeTimerMsg{}
 	})
+}
+
+// generateAuthToken creates a cryptographically secure random token
+func generateAuthToken(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	if _, err := rand.Read(b); err != nil {
+		log.Fatalf("Failed to generate secure token: %v", err)
+	}
+	for i := range b {
+		b[i] = charset[int(b[i])%len(charset)]
+	}
+	return string(b)
 }
 
 // Update initialModel to start the welcome timer
@@ -835,6 +897,13 @@ func (m *Model) renderScanningView() string {
 }
 
 func main() {
+	defer func() {
+		// Clean up telemetry client on exit
+		if telemetryClient != nil {
+			telemetryClient.Stop()
+		}
+	}()
+
 	p := tea.NewProgram(
 		initialModel(),
 		tea.WithAltScreen(), // Use alternate screen buffer
