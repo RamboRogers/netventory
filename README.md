@@ -13,12 +13,7 @@
 <div align="center">
   <h1>NetVentory</h1>
   <p><strong>Network Discovery Tool</strong></p>
-  <p>
-    <a href="#installation">Installation</a> •
-    <a href="#usage">Usage</a> •
-    <a href="#features">Features</a> •
-    <a href="#whats-new">What's New</a>
-  </p>
+  <p>🚀 Single binary | 🌍 Multiplatform | ⚡ Fast | 🎨 Beautiful | 🌐 Web | 📺 TUI</p>
   <p>
     <img src="https://img.shields.io/badge/version-0.2.0n-blue.svg" alt="Version 0.2.0n">
     <img src="https://img.shields.io/badge/go-%3E%3D1.21-00ADD8.svg" alt="Go Version">
