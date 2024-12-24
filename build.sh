@@ -68,8 +68,8 @@ read -p "Create GitHub Release? (y/N): " do_release
 if [[ $do_release =~ ^[Yy]$ ]]; then
     echo "Creating GitHub release..."
     gh release create "v$VERSION" \
-        --title "v$VERSION" \
-        --notes "Release v$VERSION" \
+        --title "$VERSION" \
+        --notes "Release $VERSION" \
         bins/netventory-* bins/netventory.zip
     echo "GitHub release created!"
 else
