@@ -1,9 +1,22 @@
 #!/bin/bash
 
 # Configuration
-VERSION="0.2.0n"
+VERSION="0.3.0n"
 GITHUB_REPO="ramborogers/netventory"
 PLATFORMS=("darwin/amd64" "darwin/arm64" "linux/amd64" "linux/arm64" "windows/amd64")
+
+# Check if private.txt exists, if not create a template
+if [ ! -f "private.txt" ]; then
+    echo "Creating template private.txt..."
+    cat <<EOL > private.txt
+# Private configuration template
+# Add your telemetry server and token below
+
+TELEMETRY_SERVER=
+TELEMETRY_TOKEN=
+EOL
+fi
+
 
 # Ensure gh CLI is installed
 if ! command -v gh &> /dev/null; then
@@ -53,21 +66,46 @@ for platform in "${PLATFORMS[@]}"; do
     fi
 done
 
-# Update Homebrew formula
-echo "Updating Homebrew formula..."
+# Get SHA256 values
 DARWIN_AMD64_SHA=$(cat bins/netventory-darwin-amd64.sha256 | cut -d ' ' -f 1)
 DARWIN_ARM64_SHA=$(cat bins/netventory-darwin-arm64.sha256 | cut -d ' ' -f 1)
 
-# Update the formula file
-sed -i '' "s/version \".*\"/version \"$VERSION\"/" homebrew-netventory/Formula/netventory.rb
-sed -i '' "s/sha256 \".*\" # amd64/sha256 \"$DARWIN_AMD64_SHA\" # amd64/" homebrew-netventory/Formula/netventory.rb
-sed -i '' "s/sha256 \".*\" # arm64/sha256 \"$DARWIN_ARM64_SHA\" # arm64/" homebrew-netventory/Formula/netventory.rb
+# Create Homebrew formula content
+cat > homebrew-netventory/Formula/netventory.rb << EOL
+class Netventory < Formula
+  desc "Network inventory and discovery tool"
+  homepage "https://github.com/ramborogers/netventory"
+  version "$VERSION"
+
+  on_macos do
+    if Hardware::CPU.intel?
+      url "https://github.com/ramborogers/netventory/releases/download/$VERSION/netventory-darwin-amd64"
+      sha256 "$DARWIN_AMD64_SHA" # amd64
+    else
+      url "https://github.com/ramborogers/netventory/releases/download/$VERSION/netventory-darwin-arm64"
+      sha256 "$DARWIN_ARM64_SHA" # arm64
+    end
+  end
+
+  def install
+    if Hardware::CPU.intel?
+      bin.install "netventory-darwin-amd64" => "netventory"
+    else
+      bin.install "netventory-darwin-arm64" => "netventory"
+    end
+  end
+
+  test do
+    system "#{bin}/netventory", "--version"
+  end
+end
+EOL
 
 # Ask about GitHub release
 read -p "Create GitHub Release? (y/N): " do_release
 if [[ $do_release =~ ^[Yy]$ ]]; then
     echo "Creating GitHub release..."
-    gh release create "v$VERSION" \
+    gh release create "$VERSION" \
         --title "$VERSION" \
         --notes "Release $VERSION" \
         bins/netventory-* bins/netventory.zip

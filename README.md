@@ -32,8 +32,14 @@ NetVentory is a powerful yet intuitive network discovery tool that provides comp
 - Fast network scanning with configurable worker count
 - Automatic interface detection and CIDR range calculation
 - MAC address resolution and vendor lookup
-- Port scanning (22, 80, 443, 445, 139, 135, 8080, 3389, 5900)
-- Hostname resolution via DNS
+- Port scanning (22, 80, 443, 445, 139, 135, 8080, 3389, 5900, 8006)
+- Advanced hostname resolution:
+  - DNS resolution
+  - NetBIOS name resolution
+  - SMB hostname discovery
+  - RDP certificate extraction
+  - mDNS/Bonjour discovery
+- Device type detection (Apple, Windows, etc.)
 - No root privileges required
 
 ### Terminal Interface
@@ -205,3 +211,51 @@ NetVentory is licensed under the GNU General Public License v3.0 (GPLv3).<br>
 - Better cross-platform support
 - Real-time progress updates
 - Optimized worker management
+
+## 🎯 What's New in v0.3.0n
+
+### Enhanced Device Discovery
+- Advanced hostname resolution with multiple methods:
+  - NetBIOS name resolution for Windows devices
+  - SMB hostname discovery with guest/anonymous access
+  - RDP certificate hostname extraction
+  - mDNS/Bonjour discovery for Apple devices
+- Improved device type detection:
+  - Apple device detection via vendor, ports, and mDNS
+  - Windows device detection via SMB and NetBIOS
+- Added Proxmox port detection (8006)
+
+### Hostname Resolution Improvements
+- Multi-layered hostname resolution strategy
+- Fallback mechanisms when primary methods fail
+- Concurrent resolution for faster results
+- Hostname validation and cleaning
+- Support for multiple hostnames per device
+
+### Protocol-Specific Enhancements
+- SMB improvements:
+  - Guest account support
+  - Anonymous access fallback
+  - Share enumeration
+  - UNC path parsing
+- RDP enhancements:
+  - TLS certificate parsing
+  - Multiple security protocol support
+  - Common Name and SAN extraction
+- mDNS features:
+  - Service type discovery
+  - Apple-specific service detection
+  - Reduced timeouts for faster scanning
+
+### Performance Optimizations
+- Concurrent hostname resolution
+- Optimized timeout values
+- Improved error handling
+- Enhanced progress tracking
+- Better memory management
+
+### UI Improvements
+- Protocol-specific links in device details
+- Enhanced port information display
+- Improved device type indicators
+- Better progress feedback

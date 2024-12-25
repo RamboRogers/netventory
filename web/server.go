@@ -343,6 +343,7 @@ func (s *Server) StartScan(cidr string) error {
 	// Create new scanner instance
 	s.scanner = scanner.NewScanner(false) // debug disabled for web interface
 	if s.scanner == nil {
+		s.scanActive = false
 		return fmt.Errorf("failed to create scanner")
 	}
 
@@ -383,23 +384,35 @@ func (s *Server) StartScan(cidr string) error {
 				select {
 				case <-doneChan:
 					// Send one final progress update before exiting
-					stats := s.scanner.GetWorkerStats()
-					if len(stats) > 0 {
-						var totalIPs int32
-						var scannedIPs int32
-						for _, stat := range stats {
-							totalIPs = stat.TotalIPs
-							scannedIPs = stat.IPsScanned
-							break
+					s.scanMutex.RLock()
+					scanner := s.scanner
+					s.scanMutex.RUnlock()
+
+					if scanner != nil {
+						stats := scanner.GetWorkerStats()
+						if len(stats) > 0 {
+							var totalIPs int32
+							var scannedIPs int32
+							for _, stat := range stats {
+								totalIPs = stat.TotalIPs
+								scannedIPs = stat.IPsScanned
+								break
+							}
+							s.UpdateProgress(scannedIPs, totalIPs, atomic.LoadInt32(&discoveredCount))
 						}
-						s.UpdateProgress(scannedIPs, totalIPs, atomic.LoadInt32(&discoveredCount))
 					}
 					return
 				case <-ticker.C:
-					if !s.scanActive {
+					s.scanMutex.RLock()
+					active := s.scanActive
+					scanner := s.scanner
+					s.scanMutex.RUnlock()
+
+					if !active || scanner == nil {
 						return
 					}
-					stats := s.scanner.GetWorkerStats()
+
+					stats := scanner.GetWorkerStats()
 					if len(stats) > 0 {
 						var totalIPs int32
 						var scannedIPs int32
@@ -441,22 +454,29 @@ func (s *Server) StartScan(cidr string) error {
 				s.deviceMutex.RUnlock()
 
 				// Send final progress update
-				stats := s.scanner.GetWorkerStats()
-				if len(stats) > 0 {
-					var totalIPs int32
-					var scannedIPs int32
-					for _, stat := range stats {
-						totalIPs = stat.TotalIPs
-						scannedIPs = stat.IPsScanned
-						break
+				s.scanMutex.RLock()
+				scanner := s.scanner
+				s.scanMutex.RUnlock()
+
+				if scanner != nil {
+					stats := scanner.GetWorkerStats()
+					if len(stats) > 0 {
+						var totalIPs int32
+						var scannedIPs int32
+						for _, stat := range stats {
+							totalIPs = stat.TotalIPs
+							scannedIPs = stat.IPsScanned
+							break
+						}
+						s.UpdateProgress(scannedIPs, totalIPs, atomic.LoadInt32(&discoveredCount))
 					}
-					s.UpdateProgress(scannedIPs, totalIPs, atomic.LoadInt32(&discoveredCount))
 				}
 
 				// Send final device update
 				s.BroadcastUpdate(map[string]interface{}{
 					"type":    "devices",
 					"devices": finalDevices,
+					"total":   len(finalDevices),
 				})
 
 				// Send scan complete notification
@@ -496,6 +516,9 @@ func (s *Server) DumpScan() {
 	log.Printf("%s[SCAN-DUMP]%s Clearing scan data%s",
 		colorPurple, colorWhite, colorReset)
 
+	// Stop any active scan first
+	s.StopScan()
+
 	// Clear device data
 	s.deviceMutex.Lock()
 	s.devices = make(map[string]scanner.Device)
@@ -511,6 +534,14 @@ func (s *Server) DumpScan() {
 	s.BroadcastUpdate(map[string]interface{}{
 		"type":    "devices",
 		"devices": make(map[string]scanner.Device),
+		"total":   0,
+	})
+
+	// Send scan complete notification
+	s.BroadcastUpdate(map[string]interface{}{
+		"type":    "scan_complete",
+		"message": "Scan Data Cleared",
+		"status":  "CLEARED",
 	})
 }
 

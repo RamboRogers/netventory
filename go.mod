@@ -10,6 +10,12 @@ require (
 )
 
 require (
+	github.com/geoffgarside/ber v1.1.0 // indirect
+	github.com/hirochachacha/go-smb2 v1.1.0 // indirect
+	golang.org/x/crypto v0.31.0 // indirect
+)
+
+require (
 	github.com/gorilla/websocket v1.5.3
 	golang.org/x/net v0.33.0 // indirect
 )

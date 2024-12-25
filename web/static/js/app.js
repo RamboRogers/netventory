@@ -354,6 +354,7 @@ class NetVentoryApp {
             if (port === 445) protocols.push('smb');
             if (port === 5900) protocols.push('vnc');
             if (port === 8080) protocols.push('http');
+            if (port === 8006) protocols.push('http');
 
             if (detailed) {
                 // For device details view, show full URLs

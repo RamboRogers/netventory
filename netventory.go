@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	version         = "0.2.0n"
+	version         = "0.3.0n"
 	debug           = false // Default debug setting, can be overridden by --debug flag
 	authTokenLength = 50
 )

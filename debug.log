@@ -1,0 +1,11 @@
+[92mnetventory 0.2.0n - Network Discovery Tool[0m
+[94mhttps://github.com/RamboRogers/netventory[0m
+
+[92mWeb interface available at:[0m
+  [94mhttp://localhost:7331?auth=vbXq9UnyYHJ16DvCZdwFby9DuZiOuRyVJmUltj2Arwy44Q4y8e[0m	
+  [94mhttp://192.168.14.222:7331?auth=vbXq9UnyYHJ16DvCZdwFby9DuZiOuRyVJmUltj2Arwy44Q4y8e[0m
+  [94mhttp://100.65.97.51:7331?auth=vbXq9UnyYHJ16DvCZdwFby9DuZiOuRyVJmUltj2Arwy44Q4y8e[0m
+
+Authentication token required in URL: ?auth=<token>
+Token will be valid until program restart
+
