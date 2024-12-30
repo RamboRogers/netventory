@@ -93,6 +93,8 @@ class Netventory < Formula
     else
       bin.install "netventory-darwin-arm64" => "netventory"
     end
+    # Remove quarantine attribute
+    system "xattr", "-d", "com.apple.quarantine", "#{bin}/netventory"
   end
 
   test do
