@@ -95,6 +95,9 @@ class Netventory < Formula
     end
     # Remove quarantine attribute
     system "xattr", "-d", "com.apple.quarantine", "#{bin}/netventory"
+  rescue
+    # Ignore if xattr fails (in case attribute doesn't exist)
+    nil
   end
 
   test do
