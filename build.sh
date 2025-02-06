@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-VERSION="0.3.0n"
+VERSION="0.4.0n"
 GITHUB_REPO="ramborogers/netventory"
 PLATFORMS=("darwin/amd64" "darwin/arm64" "linux/amd64" "linux/arm64" "windows/amd64")
 

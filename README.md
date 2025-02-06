@@ -15,7 +15,7 @@
   <p><strong>Network Discovery Tool</strong></p>
   <p>🚀 Single binary | 🌍 Multiplatform | ⚡ Fast | 🎨 Beautiful | 🌐 Web | 📺 TUI</p>
   <p>
-    <img src="https://img.shields.io/badge/version-0.2.0n-blue.svg" alt="Version 0.2.0n">
+    <img src="https://img.shields.io/badge/version-0.4.0n-blue.svg" alt="Version 0.2.0n">
     <img src="https://img.shields.io/badge/go-%3E%3D1.21-00ADD8.svg" alt="Go Version">
     <img src="https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-brightgreen.svg" alt="Platform Support">
     <img src="https://img.shields.io/badge/license-GPLv3-green.svg" alt="License">

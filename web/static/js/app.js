@@ -61,35 +61,43 @@ class NetVentoryApp {
             this.showScreen('scanning-view');
         });
 
-        // Add stop scan button to container
+        // Create action buttons container
+        const actionButtons = document.createElement('div');
+        actionButtons.className = 'action-buttons';
+        document.querySelector('.container').appendChild(actionButtons);
+
+        // Add stop scan button
         const stopButton = document.createElement('button');
         stopButton.id = 'stop-scan';
         stopButton.textContent = 'Stop Scan';
-        stopButton.classList.add('hidden');
-        document.querySelector('.container').appendChild(stopButton);
+        stopButton.classList.add('action-button', 'hidden');
+        actionButtons.appendChild(stopButton);
 
+        // Add stop scan event listener
         stopButton.addEventListener('click', () => {
             this.stopScan();
         });
 
-        // Add dump scan button to container
+        // Add dump scan button
         const dumpButton = document.createElement('button');
         dumpButton.id = 'dump-scan';
         dumpButton.textContent = 'Dump Scan';
-        dumpButton.classList.add('dump-scan', 'hidden');
-        document.querySelector('.container').appendChild(dumpButton);
+        dumpButton.classList.add('action-button', 'dump-scan', 'hidden');
+        actionButtons.appendChild(dumpButton);
 
+        // Add dump scan event listener
         dumpButton.addEventListener('click', () => {
             this.dumpScan();
         });
 
-        // Add save scan button to container
+        // Add save scan button
         const saveButton = document.createElement('button');
         saveButton.id = 'save-scan';
         saveButton.textContent = 'Save Scan';
-        saveButton.classList.add('save-scan', 'hidden');
-        document.querySelector('.container').appendChild(saveButton);
+        saveButton.classList.add('action-button', 'save-scan', 'hidden');
+        actionButtons.appendChild(saveButton);
 
+        // Add save scan event listener
         saveButton.addEventListener('click', () => {
             this.saveScan();
         });
