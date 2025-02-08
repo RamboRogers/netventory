@@ -122,28 +122,4 @@ fi
 
 echo "Build process complete!"
 
-# Create directory structure if it doesn't exist
-mkdir -p macos/netventory.app/Contents/{MacOS,Frameworks,Resources}
-
-echo "Building Swift app..."
-cd macos
-
-# Build the Go bridge library first
-echo "Building Go bridge library..."
-cd bridge
-go build -buildmode=c-shared -o libscanner.dylib
-cd ..
-
-swift build -c release
-
-echo "Copying resources..."
-cp -r .build/release/NetVentory netventory.app/Contents/MacOS/
-# Copy the bridge library
-cp bridge/libscanner.dylib netventory.app/Contents/Frameworks/
-install_name_tool -change @rpath/libscanner.dylib @executable_path/../Frameworks/libscanner.dylib netventory.app/Contents/MacOS/NetVentory
-
-echo "Setting permissions..."
-chmod +x netventory.app/Contents/MacOS/NetVentory
-chmod 755 netventory.app/Contents/Frameworks/libscanner.dylib
-
 echo "Build complete!"
