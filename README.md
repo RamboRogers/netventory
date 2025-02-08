@@ -9,6 +9,10 @@
     <td align="center"><img src="media/demoweb.gif" width="100%" alt="Web Interface Demo"></td>
   </tr>
   <tr>
+    <td align="center" width="50%"><strong>Mac Interface</strong></td>
+    <td align="center" width="50%"><strong>Mac Scan Interface</strong></td>
+  </tr>
+  <tr>
     <td align="center"><img src="media/mac1.png" width="100%" alt="GUI Interface Demo"></td>
     <td align="center"><img src="media/mac3.png" width="100%" alt="Web Interface Demo"></td>
   </tr>
