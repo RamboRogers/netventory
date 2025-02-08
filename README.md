@@ -8,6 +8,10 @@
     <td align="center"><img src="media/demo.gif" width="100%" alt="Terminal Interface Demo"></td>
     <td align="center"><img src="media/demoweb.gif" width="100%" alt="Web Interface Demo"></td>
   </tr>
+  <tr>
+    <td align="center"><img src="media/mac1.png" width="100%" alt="GUI Interface Demo"></td>
+    <td align="center"><img src="media/mac3.png" width="100%" alt="Web Interface Demo"></td>
+  </tr>
 </table>
 
 <div align="center">
@@ -86,11 +90,18 @@ Open a terminal and run the following command:
 curl -L https://raw.githubusercontent.com/RamboRogers/netventory/refs/heads/master/install.sh | sh
 ```
 
-or Brew for Mac
+or Brew for the Command Line Mac
 
 ```bash
 brew tap ramborogers/netventory
 brew install netventory
+```
+
+or for the GUI Mac
+
+```bash
+brew tap ramborogers/netventory
+brew install --cask netventory
 ```
 
 ### 🪟 Windows PowerShell
