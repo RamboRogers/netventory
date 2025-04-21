@@ -34,6 +34,10 @@ NetVentory is a fast, beautiful network discovery tool with both terminal and we
 
 NetVentory is a powerful yet intuitive network discovery tool that provides comprehensive visibility into your network infrastructure. With its user-friendly interfaces and robust feature set, it makes network exploration and monitoring accessible to both novice users and experienced administrators.
 
+### 2025-04-20
+
+- Paid for Apple Developer Account and created a Mac App with Signature!
+
 ## 🌟 Features
 
 ### Discovery
